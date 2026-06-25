@@ -207,6 +207,12 @@
       stroke-width: 3.2;
       stroke-linecap: round;
     }
+    .pe {
+      stroke: #0891b2;
+      stroke-width: 3.2;
+      stroke-linecap: round;
+      stroke-dasharray: 8 6;
+    }
     .bisector {
       stroke: #ea580c;
       stroke-width: 3.2;
@@ -243,6 +249,9 @@
     }
     .purple {
       fill: #6d28d9;
+    }
+    .cyan {
+      fill: #0e7490;
     }
     .red {
       fill: #b91c1c;
@@ -290,7 +299,7 @@
 
               <rect x="0" y="0" width="980" height="620" fill="#fbfdff"></rect>
               <text x="42" y="50" class="legend">P 的运动路程 x：A → D → C</text>
-              <text x="42" y="82" class="legend">橙色虚线：BP 的垂直平分线；红色线段：AE；紫色线段：BE</text>
+              <text x="42" y="82" class="legend">橙色虚线：BP 的垂直平分线；红色线段：AE；紫色线段：BE；青色虚线：PE</text>
 
               <path id="pathFull" class="path-full"></path>
               <path id="pathDone" class="path-done" marker-end="url(#arrow)"></path>
@@ -298,6 +307,7 @@
               <rect id="rectABCD" class="rect"></rect>
               <line id="bpLine" class="bp"></line>
               <line id="beLine" class="be"></line>
+              <line id="peLine" class="pe"></line>
               <line id="bisectorLine" class="bisector"></line>
               <line id="aeLine" class="ae"></line>
               <line id="midHelper" class="helper"></line>
@@ -320,6 +330,7 @@
               <text id="labelF" class="label orange"></text>
               <text id="labelAE" class="small-label red"></text>
               <text id="labelBE" class="small-label purple"></text>
+              <text id="labelPE" class="small-label cyan"></text>
               <text id="labelBP" class="small-label blue"></text>
               <text id="labelBisector" class="small-label orange"></text>
             </svg>
@@ -411,6 +422,7 @@
       rect: document.getElementById("rectABCD"),
       bp: document.getElementById("bpLine"),
       be: document.getElementById("beLine"),
+      pe: document.getElementById("peLine"),
       bisector: document.getElementById("bisectorLine"),
       ae: document.getElementById("aeLine"),
       midHelper: document.getElementById("midHelper"),
@@ -431,6 +443,7 @@
       labelF: document.getElementById("labelF"),
       labelAE: document.getElementById("labelAE"),
       labelBE: document.getElementById("labelBE"),
+      labelPE: document.getElementById("labelPE"),
       labelBP: document.getElementById("labelBP"),
       labelBisector: document.getElementById("labelBisector"),
       slider: document.getElementById("slider"),
@@ -572,6 +585,7 @@
       els.pathDone.setAttribute("d", traveledPath(x));
       setLine(els.bp, points.B, P);
       setLine(els.be, points.B, E);
+      setLine(els.pe, P, E);
       setLine(els.bisector, q1, q2);
       setLine(els.ae, points.A, E);
       setLine(els.midHelper, mid, P);
@@ -591,6 +605,10 @@
         x: (points.B.x + E.x) / 2,
         y: (points.B.y + E.y) / 2
       }, 10, E.side === "AD" ? 18 : 0);
+      setText(els.labelPE, "PE", {
+        x: (P.x + E.x) / 2,
+        y: (P.y + E.y) / 2
+      }, 8, E.side === "AD" ? -22 : -10);
       setText(els.labelBP, "BP", { x: P.x / 2, y: P.y / 2 }, 12, -12);
       setText(els.labelBisector, "BP 的垂直平分线", {
         x: (E.x + F.x) / 2,
