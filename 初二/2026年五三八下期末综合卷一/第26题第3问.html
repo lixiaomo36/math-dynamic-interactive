@@ -1,0 +1,660 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>第26题第3问动态演示</title>
+  <style>
+    :root {
+      --ink: #172033;
+      --muted: #66748a;
+      --line: #d8e2ef;
+      --blue: #2563eb;
+      --teal: #0f766e;
+      --orange: #ea580c;
+      --red: #dc2626;
+      --bg: #edf3f8;
+      --panel: #ffffff;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+        "Hiragino Sans GB", "Microsoft YaHei", Arial, sans-serif;
+    }
+    .page {
+      width: min(1280px, 100vw);
+      margin: 0 auto;
+      padding: 28px;
+    }
+    .app {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 46px rgba(15, 23, 42, 0.12);
+      padding: 26px;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 34px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+    .subtitle {
+      margin: 0 0 22px;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.6;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(680px, 1fr) 360px;
+      gap: 22px;
+      align-items: start;
+    }
+    .stage {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      overflow: hidden;
+      background: #fbfdff;
+    }
+    svg {
+      display: block;
+      width: 100%;
+      height: auto;
+      user-select: none;
+    }
+    .controls,
+    .info {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fbfdff;
+      padding: 16px;
+    }
+    .controls {
+      margin-top: 14px;
+    }
+    .row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    button {
+      appearance: none;
+      border: 1px solid #bfd0e5;
+      background: #fff;
+      color: var(--ink);
+      border-radius: 8px;
+      padding: 9px 12px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    button.primary {
+      background: #e8f2ff;
+      border-color: #9ac2ff;
+      color: #1d4ed8;
+    }
+    button:hover {
+      border-color: #6ea8f7;
+    }
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--blue);
+      margin: 14px 0 6px;
+    }
+    .range-labels {
+      display: flex;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .info h2 {
+      margin: 0 0 12px;
+      font-size: 21px;
+      letter-spacing: 0;
+    }
+    .metric {
+      display: grid;
+      grid-template-columns: 86px 1fr;
+      gap: 10px;
+      align-items: baseline;
+      padding: 10px 0;
+      border-bottom: 1px solid #edf2f7;
+    }
+    .metric:last-child {
+      border-bottom: 0;
+    }
+    .metric .k {
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 800;
+    }
+    .metric .v {
+      font-size: 20px;
+      font-weight: 850;
+      color: var(--ink);
+    }
+    .status {
+      margin: 14px 0 0;
+      padding: 12px;
+      border-radius: 10px;
+      background: #ecfdf5;
+      border: 1px solid #9ae6b4;
+      color: #065f46;
+      line-height: 1.5;
+      font-weight: 750;
+    }
+    .status.warn {
+      background: #fff7db;
+      border-color: #f6d673;
+      color: #6b4e16;
+    }
+    .formula {
+      margin-top: 16px;
+      padding: 14px;
+      border-radius: 12px;
+      background: #f8fbff;
+      border: 1px solid #dbeafe;
+      font-size: 16px;
+      line-height: 1.8;
+    }
+    .formula b {
+      color: #075985;
+    }
+    .formula .piece {
+      padding-left: 12px;
+      border-left: 4px solid #38bdf8;
+      margin: 8px 0;
+    }
+    .note {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.65;
+    }
+    .rect {
+      fill: #ffffff;
+      stroke: #172033;
+      stroke-width: 3;
+    }
+    .path-full {
+      fill: none;
+      stroke: #c7d2e2;
+      stroke-width: 9;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .path-done {
+      fill: none;
+      stroke: #0f766e;
+      stroke-width: 9;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .bp {
+      stroke: #2563eb;
+      stroke-width: 3.2;
+    }
+    .be {
+      stroke: #7c3aed;
+      stroke-width: 3.2;
+      stroke-linecap: round;
+    }
+    .bisector {
+      stroke: #ea580c;
+      stroke-width: 3.2;
+      stroke-dasharray: 10 8;
+    }
+    .ae {
+      stroke: #dc2626;
+      stroke-width: 5;
+      stroke-linecap: round;
+    }
+    .helper {
+      stroke: #94a3b8;
+      stroke-width: 1.6;
+      stroke-dasharray: 6 6;
+    }
+    .label {
+      font-size: 24px;
+      font-weight: 850;
+      fill: #172033;
+    }
+    .small-label {
+      font-size: 18px;
+      font-weight: 800;
+      fill: #334155;
+    }
+    .blue {
+      fill: #1d4ed8;
+    }
+    .teal {
+      fill: #0f766e;
+    }
+    .orange {
+      fill: #c2410c;
+    }
+    .purple {
+      fill: #6d28d9;
+    }
+    .red {
+      fill: #b91c1c;
+    }
+    .point {
+      stroke: #fff;
+      stroke-width: 3;
+    }
+    .legend {
+      font-size: 17px;
+      font-weight: 800;
+      fill: #475569;
+    }
+    @media (max-width: 980px) {
+      .page {
+        padding: 14px;
+      }
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      h1 {
+        font-size: 28px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="app">
+      <h1>第 26 题第 3 问：点 P 沿折线 ADC 运动</h1>
+      <p class="subtitle">
+        由条件得 <b>AB=4，BC=8</b>。取坐标
+        B(0,0)，A(0,4)，D(8,4)，C(8,0)。滑动或播放，观察垂直平分线与 E 点的位置。
+      </p>
+
+      <div class="layout">
+        <div>
+          <div class="stage">
+            <svg id="svg" viewBox="0 0 980 620" aria-label="第26题第3问动态几何图">
+              <defs>
+                <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="#0f766e"></path>
+                </marker>
+              </defs>
+
+              <rect x="0" y="0" width="980" height="620" fill="#fbfdff"></rect>
+              <text x="42" y="50" class="legend">P 的运动路程 x：A → D → C</text>
+              <text x="42" y="82" class="legend">橙色虚线：BP 的垂直平分线；红色线段：AE；紫色线段：BE</text>
+
+              <path id="pathFull" class="path-full"></path>
+              <path id="pathDone" class="path-done" marker-end="url(#arrow)"></path>
+
+              <rect id="rectABCD" class="rect"></rect>
+              <line id="bpLine" class="bp"></line>
+              <line id="beLine" class="be"></line>
+              <line id="bisectorLine" class="bisector"></line>
+              <line id="aeLine" class="ae"></line>
+              <line id="midHelper" class="helper"></line>
+
+              <circle id="pointA" r="7" class="point" fill="#172033"></circle>
+              <circle id="pointB" r="7" class="point" fill="#172033"></circle>
+              <circle id="pointC" r="7" class="point" fill="#172033"></circle>
+              <circle id="pointD" r="7" class="point" fill="#172033"></circle>
+              <circle id="pointP" r="9" class="point" fill="#0f766e"></circle>
+              <circle id="pointE" r="8" class="point" fill="#dc2626"></circle>
+              <circle id="pointF" r="8" class="point" fill="#ea580c"></circle>
+              <circle id="pointM" r="6" class="point" fill="#64748b"></circle>
+
+              <text id="labelA" class="label"></text>
+              <text id="labelB" class="label"></text>
+              <text id="labelC" class="label"></text>
+              <text id="labelD" class="label"></text>
+              <text id="labelP" class="label teal"></text>
+              <text id="labelE" class="label red"></text>
+              <text id="labelF" class="label orange"></text>
+              <text id="labelAE" class="small-label red"></text>
+              <text id="labelBE" class="small-label purple"></text>
+              <text id="labelBP" class="small-label blue"></text>
+              <text id="labelBisector" class="small-label orange"></text>
+            </svg>
+          </div>
+
+          <div class="controls">
+            <div class="row">
+              <button id="playBtn" class="primary">播放</button>
+              <button id="resetBtn">回到 A</button>
+              <button data-jump="4">E 进入 AD</button>
+              <button data-jump="8">P 到 D</button>
+              <button data-jump="10">P 为 CD 中点</button>
+              <button data-jump="12">P 到 C</button>
+            </div>
+            <input id="slider" type="range" min="0" max="12" step="0.01" value="6" />
+            <div class="range-labels">
+              <span>x=0，P=A</span>
+              <span>x=8，P=D</span>
+              <span>x=12，P=C</span>
+            </div>
+          </div>
+        </div>
+
+        <aside class="info">
+          <h2>实时数据</h2>
+          <div class="metric">
+            <div class="k">路程 x</div>
+            <div id="xValue" class="v"></div>
+          </div>
+          <div class="metric">
+            <div class="k">点 P</div>
+            <div id="pValue" class="v"></div>
+          </div>
+          <div class="metric">
+            <div class="k">点 E</div>
+            <div id="eValue" class="v"></div>
+          </div>
+          <div class="metric">
+            <div class="k">AE</div>
+            <div id="aeValue" class="v"></div>
+          </div>
+          <div id="status" class="status"></div>
+
+          <div class="formula">
+            <b>当 E 在线段 AD 上：</b>
+            <div class="piece">
+              自变量范围：<b>4 ≤ x ≤ 12</b>
+            </div>
+            <div class="piece">
+              4 ≤ x ≤ 8 时：<br />
+              <b>y = AE = x/2 - 8/x</b>
+            </div>
+            <div class="piece">
+              8 ≤ x ≤ 12 时：<br />
+              <b>y = AE = 3 + (x - 8)² / 16</b>
+            </div>
+            <div class="piece">
+              P 为 CD 中点：x=10，<br />
+              <b>AE = 13/4</b>
+            </div>
+          </div>
+          <p class="note">
+            说明：E 是 BP 的垂直平分线与 AB 或 AD 的交点。前段 x&lt;4 时，E 在 AB 上；从 x=4 开始，E 进入 AD，才对应第 3 小问要求的函数关系。
+          </p>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const geom = {
+      left: 140,
+      top: 118,
+      scale: 82,
+      w: 8,
+      h: 4
+    };
+
+    const points = {
+      A: { x: 0, y: 4 },
+      B: { x: 0, y: 0 },
+      C: { x: 8, y: 0 },
+      D: { x: 8, y: 4 }
+    };
+
+    const els = {
+      pathFull: document.getElementById("pathFull"),
+      pathDone: document.getElementById("pathDone"),
+      rect: document.getElementById("rectABCD"),
+      bp: document.getElementById("bpLine"),
+      be: document.getElementById("beLine"),
+      bisector: document.getElementById("bisectorLine"),
+      ae: document.getElementById("aeLine"),
+      midHelper: document.getElementById("midHelper"),
+      A: document.getElementById("pointA"),
+      B: document.getElementById("pointB"),
+      C: document.getElementById("pointC"),
+      D: document.getElementById("pointD"),
+      P: document.getElementById("pointP"),
+      E: document.getElementById("pointE"),
+      F: document.getElementById("pointF"),
+      M: document.getElementById("pointM"),
+      labelA: document.getElementById("labelA"),
+      labelB: document.getElementById("labelB"),
+      labelC: document.getElementById("labelC"),
+      labelD: document.getElementById("labelD"),
+      labelP: document.getElementById("labelP"),
+      labelE: document.getElementById("labelE"),
+      labelF: document.getElementById("labelF"),
+      labelAE: document.getElementById("labelAE"),
+      labelBE: document.getElementById("labelBE"),
+      labelBP: document.getElementById("labelBP"),
+      labelBisector: document.getElementById("labelBisector"),
+      slider: document.getElementById("slider"),
+      playBtn: document.getElementById("playBtn"),
+      resetBtn: document.getElementById("resetBtn"),
+      xValue: document.getElementById("xValue"),
+      pValue: document.getElementById("pValue"),
+      eValue: document.getElementById("eValue"),
+      aeValue: document.getElementById("aeValue"),
+      status: document.getElementById("status")
+    };
+
+    function sx(x) {
+      return geom.left + x * geom.scale;
+    }
+
+    function sy(y) {
+      return geom.top + (geom.h - y) * geom.scale;
+    }
+
+    function fmt(n) {
+      if (Math.abs(n - Math.round(n)) < 1e-9) return String(Math.round(n));
+      return Number(n.toFixed(2)).toString();
+    }
+
+    function pointOnPath(x) {
+      if (x <= 8) return { x, y: 4, segment: "AD" };
+      return { x: 8, y: 12 - x, segment: "CD" };
+    }
+
+    function isBetween(v, min, max) {
+      return v >= min - 1e-8 && v <= max + 1e-8;
+    }
+
+    function intersections(P) {
+      const px = P.x;
+      const py = P.y;
+      const c = px * px + py * py;
+      const result = {};
+
+      if (Math.abs(py) > 1e-9) {
+        const yAB = c / (2 * py);
+        if (isBetween(yAB, 0, 4)) result.AB = { x: 0, y: yAB, side: "AB" };
+        const yCD = (c - 16 * px) / (2 * py);
+        if (isBetween(yCD, 0, 4)) result.CD = { x: 8, y: yCD, side: "CD" };
+      }
+
+      if (Math.abs(px) > 1e-9) {
+        const xAD = (c - 8 * py) / (2 * px);
+        if (isBetween(xAD, 0, 8)) result.AD = { x: xAD, y: 4, side: "AD" };
+        const xBC = c / (2 * px);
+        if (isBetween(xBC, 0, 8)) result.BC = { x: xBC, y: 0, side: "BC" };
+      }
+
+      return result;
+    }
+
+    function chooseE(x, ints) {
+      if (x >= 4 && ints.AD) return ints.AD;
+      if (ints.AB) return ints.AB;
+      return ints.AD;
+    }
+
+    function chooseF(ints) {
+      if (ints.BC) return ints.BC;
+      return ints.CD;
+    }
+
+    function aeLength(E) {
+      return Math.hypot(E.x - points.A.x, E.y - points.A.y);
+    }
+
+    function yFormula(x) {
+      if (x < 4) return null;
+      if (x <= 8) return x / 2 - 8 / x;
+      return 3 + ((x - 8) * (x - 8)) / 16;
+    }
+
+    function setLine(el, p1, p2) {
+      el.setAttribute("x1", sx(p1.x));
+      el.setAttribute("y1", sy(p1.y));
+      el.setAttribute("x2", sx(p2.x));
+      el.setAttribute("y2", sy(p2.y));
+    }
+
+    function setPoint(el, p) {
+      el.setAttribute("cx", sx(p.x));
+      el.setAttribute("cy", sy(p.y));
+    }
+
+    function setText(el, text, p, dx = 0, dy = 0) {
+      el.textContent = text;
+      el.setAttribute("x", sx(p.x) + dx);
+      el.setAttribute("y", sy(p.y) + dy);
+    }
+
+    function setupBase() {
+      els.rect.setAttribute("x", sx(0));
+      els.rect.setAttribute("y", sy(4));
+      els.rect.setAttribute("width", geom.w * geom.scale);
+      els.rect.setAttribute("height", geom.h * geom.scale);
+
+      const path = `M ${sx(0)} ${sy(4)} L ${sx(8)} ${sy(4)} L ${sx(8)} ${sy(0)}`;
+      els.pathFull.setAttribute("d", path);
+
+      setPoint(els.A, points.A);
+      setPoint(els.B, points.B);
+      setPoint(els.C, points.C);
+      setPoint(els.D, points.D);
+      setText(els.labelA, "A", points.A, -20, -14);
+      setText(els.labelB, "B", points.B, -22, 32);
+      setText(els.labelC, "C", points.C, 12, 32);
+      setText(els.labelD, "D", points.D, 12, -14);
+    }
+
+    function traveledPath(x) {
+      if (x <= 8) {
+        return `M ${sx(0)} ${sy(4)} L ${sx(x)} ${sy(4)}`;
+      }
+      const P = pointOnPath(x);
+      return `M ${sx(0)} ${sy(4)} L ${sx(8)} ${sy(4)} L ${sx(P.x)} ${sy(P.y)}`;
+    }
+
+    function update(x) {
+      const P = pointOnPath(x);
+      const ints = intersections(P);
+      const E = chooseE(x, ints);
+      const F = chooseF(ints);
+      const mid = { x: P.x / 2, y: P.y / 2 };
+      const dir = { x: -P.y, y: P.x };
+      const len = Math.hypot(dir.x, dir.y) || 1;
+      const d = { x: dir.x / len, y: dir.y / len };
+      const L = 12;
+      const q1 = { x: mid.x - d.x * L, y: mid.y - d.y * L };
+      const q2 = { x: mid.x + d.x * L, y: mid.y + d.y * L };
+      const y = yFormula(x);
+      const ae = aeLength(E);
+
+      els.pathDone.setAttribute("d", traveledPath(x));
+      setLine(els.bp, points.B, P);
+      setLine(els.be, points.B, E);
+      setLine(els.bisector, q1, q2);
+      setLine(els.ae, points.A, E);
+      setLine(els.midHelper, mid, P);
+      setPoint(els.P, P);
+      setPoint(els.E, E);
+      setPoint(els.F, F);
+      setPoint(els.M, mid);
+
+      setText(els.labelP, `P(${fmt(P.x)},${fmt(P.y)})`, P, 12, -16);
+      setText(els.labelE, `E`, E, E.side === "AD" ? -8 : -30, E.side === "AD" ? -16 : 5);
+      setText(els.labelF, `F`, F, F.side === "BC" ? -8 : 12, F.side === "BC" ? 30 : 5);
+      setText(els.labelAE, `AE=${fmt(ae)}`, {
+        x: (points.A.x + E.x) / 2,
+        y: (points.A.y + E.y) / 2
+      }, 8, E.side === "AD" ? -12 : 0);
+      setText(els.labelBE, "BE", {
+        x: (points.B.x + E.x) / 2,
+        y: (points.B.y + E.y) / 2
+      }, 10, E.side === "AD" ? 18 : 0);
+      setText(els.labelBP, "BP", { x: P.x / 2, y: P.y / 2 }, 12, -12);
+      setText(els.labelBisector, "BP 的垂直平分线", {
+        x: (E.x + F.x) / 2,
+        y: (E.y + F.y) / 2
+      }, 12, -12);
+
+      els.xValue.textContent = fmt(x);
+      els.pValue.textContent = `(${fmt(P.x)}, ${fmt(P.y)})`;
+      els.eValue.textContent = `${E.side} 上 (${fmt(E.x)}, ${fmt(E.y)})`;
+      els.aeValue.textContent = `${fmt(ae)}${y === null ? "，但 E 不在 AD" : ""}`;
+
+      if (x < 4) {
+        els.status.className = "status warn";
+        els.status.textContent = "当前 E 在 AB 上，还没有进入第 3 小问要求的 AD 区段。";
+      } else if (Math.abs(x - 10) < 0.01) {
+        els.status.className = "status";
+        els.status.textContent = "P 是 CD 的中点：x=10，AE=13/4。";
+      } else {
+        els.status.className = "status";
+        els.status.textContent = `当前 E 在 AD 上，函数值 y=AE=${fmt(y)}。`;
+      }
+    }
+
+    let playing = false;
+    let lastTime = 0;
+
+    function animate(time) {
+      if (!playing) return;
+      if (!lastTime) lastTime = time;
+      const dt = time - lastTime;
+      lastTime = time;
+      let next = Number(els.slider.value) + dt * 0.0022;
+      if (next > 12) next = 0;
+      els.slider.value = next.toFixed(2);
+      update(next);
+      requestAnimationFrame(animate);
+    }
+
+    setupBase();
+    update(Number(els.slider.value));
+
+    els.slider.addEventListener("input", () => {
+      update(Number(els.slider.value));
+    });
+
+    els.playBtn.addEventListener("click", () => {
+      playing = !playing;
+      els.playBtn.textContent = playing ? "暂停" : "播放";
+      lastTime = 0;
+      if (playing) requestAnimationFrame(animate);
+    });
+
+    els.resetBtn.addEventListener("click", () => {
+      els.slider.value = "0";
+      update(0);
+    });
+
+    document.querySelectorAll("[data-jump]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const x = Number(btn.dataset.jump);
+        els.slider.value = String(x);
+        update(x);
+      });
+    });
+  </script>
+</body>
+</html>
